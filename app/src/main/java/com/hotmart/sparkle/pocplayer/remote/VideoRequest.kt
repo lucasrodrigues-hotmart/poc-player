@@ -7,10 +7,12 @@ import org.json.JSONObject
 import java.io.IOException
 
 object VideoRequest {
-    fun perform(context: Context, url: String, listener: (String, String) -> Unit) {
+    fun perform(context: Context, url: String, token: String, listener: (String, String) -> Unit) {
         val client = BaseOkHttpClient.getOkHttpClient(context)
 
-        Request.Builder().url("$url?redirect=false").build().apply {
+        Request.Builder().url("$url?redirect=false")
+            .addHeader("Authorization", "Bearer $token")
+            .build().apply {
             client.newCall(this).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     e.printStackTrace()
@@ -30,7 +32,7 @@ object VideoRequest {
                         listener.invoke(obj.getString("data"), cookies)
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Log.e("aaaa", "contentplayer failure")
+                        Log.e("aaaa", "content player failure")
                     }
                 }
             })
