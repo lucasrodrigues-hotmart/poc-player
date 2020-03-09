@@ -37,6 +37,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+    implementation "com.google.android.exoplayer:extension-okhttp:2.11.3"
     implementation "com.squareup.okhttp3:okhttp:4.3.1"
     implementation "com.squareup.okhttp3:logging-interceptor:4.3.1"
 

@@ -7,17 +7,8 @@ import okhttp3.Response
 
 class MediaInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        var response = chain.proceed(chain.request())
-
-        if (isPlayerUrl(response.request)) {
-            response = chain.proceed(addHlsHeader(response))
-        }
-
-        return response
-    }
-
-    private fun isPlayerUrl(request: Request): Boolean {
-        return request.url.toString().contains("contentplayer.buildstaging.com")
+        val response = chain.proceed(chain.request())
+        return chain.proceed(addHlsHeader(response))
     }
 
     private fun addHlsHeader(response: Response): Request {
@@ -25,7 +16,7 @@ class MediaInterceptor(private val context: Context) : Interceptor {
 
         return Request.Builder()
             .url(response.request.url)
-            .addHeader(REFERER, "https://api-sparkle.buildstaging.com/")
+            .addHeader(REFERER, "https://api.sparkleapp.com.br/")
             .addHeader(COOKIE, prefs.getString(COOKIE, EMPTY) ?: EMPTY)
             .build()
     }
