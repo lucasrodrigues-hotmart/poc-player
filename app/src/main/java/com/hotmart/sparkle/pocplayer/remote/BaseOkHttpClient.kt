@@ -23,7 +23,7 @@ class BaseOkHttpClient(private val okHttpClient: OkHttpClient) {
         fun getOkHttpClient(context: Context): OkHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(MediaInterceptor(context))
             addInterceptor(HttpLoggingInterceptor().apply {
-                this.level = HttpLoggingInterceptor.Level.BODY
+                this.level = HttpLoggingInterceptor.Level.BASIC
             })
 
             cache(Cache(context.cacheDir, CACHE_SIZE))
