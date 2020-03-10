@@ -2,7 +2,6 @@ package com.hotmart.sparkle.pocplayer
 
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.DefaultLoadControl
@@ -11,22 +10,27 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.upstream.BandwidthMeter
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.TransferListener
 import com.hotmart.sparkle.pocplayer.remote.BaseOkHttpClient
 import com.hotmart.sparkle.pocplayer.remote.VideoRequest
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.time.ClockMark
 import kotlin.time.ExperimentalTime
 import kotlin.time.MonoClock
 
 @ExperimentalTime
 class MainActivity : AppCompatActivity() {
-    val time = MonoClock.markNow()
+    lateinit var time: ClockMark
+
+    private lateinit var player: SimpleExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        time = MonoClock.markNow()
+
+        createPlayer()
 
         val url = "https://api.sparkleapp.com.br/rest/v2/news/207274/download"
 //        val url = "https://api.sparkleapp.com.br/rest/v2/news/243410/download"
@@ -39,6 +43,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun createPlayer() {
+        val loadControlStartBufferMs = 1500
+        val loadControlBufferMs = 60000
+        val loadControl = DefaultLoadControl.Builder().setBufferDurationsMs(
+            loadControlBufferMs,
+            loadControlBufferMs,
+            loadControlStartBufferMs,
+            DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+        ).createDefaultLoadControl()
+
+        player = SimpleExoPlayer.Builder(this)
+            .setLoadControl(loadControl)
+            .build().apply {
+                playWhenReady = true
+                playerView.player = this
+                addListener(object: Player.EventListener {
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        Log.e("aaaa", "total time: ${time.elapsedNow()}")
+                    }
+                })
+            }
+    }
+
     private fun playMedia(mediaUrl : String) {
         val dataSourceFactory: DataSource.Factory = OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(this), "poc")
 
@@ -47,19 +74,6 @@ class MainActivity : AppCompatActivity() {
             .setAllowChunklessPreparation(true)
             .createMediaSource(Uri.parse(mediaUrl))
 
-        // Prepare the player with the source.
-        val simpleExoPlayer = SimpleExoPlayer.Builder(this)
-            .build().apply {
-            playWhenReady = true
-            prepare(videoSource)
-        }
-
-        playerView.player = simpleExoPlayer
-
-        simpleExoPlayer.addListener(object: Player.EventListener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                Log.e("aaaa", "total time: ${time.elapsedNow()}")
-            }
-        })
+        player.prepare(videoSource)
     }
 }
