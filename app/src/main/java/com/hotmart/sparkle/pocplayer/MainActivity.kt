@@ -8,9 +8,7 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
 import com.hotmart.sparkle.pocplayer.remote.BaseOkHttpClient
 import com.hotmart.sparkle.pocplayer.remote.VideoRequest
 import kotlinx.android.synthetic.main.activity_main.*
@@ -20,15 +18,20 @@ import kotlin.time.MonoClock
 
 @ExperimentalTime
 class MainActivity : AppCompatActivity() {
-    lateinit var time: ClockMark
-
     private lateinit var player: SimpleExoPlayer
+    private lateinit var time: ClockMark
+    private lateinit var dataSourceFactory: OkHttpDataSourceFactory
+    private lateinit var hlsMediaSourceFactory: HlsMediaSource.Factory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         time = MonoClock.markNow()
+
+        dataSourceFactory = OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(this), "poc")
+        hlsMediaSourceFactory = HlsMediaSource.Factory(dataSourceFactory)
+            .setAllowChunklessPreparation(true)
 
         createPlayer()
 
@@ -67,13 +70,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playMedia(mediaUrl : String) {
-        val dataSourceFactory: DataSource.Factory = OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(this), "poc")
-
-        // This is the MediaSource representing the media to be played.
-        val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory)
-            .setAllowChunklessPreparation(true)
-            .createMediaSource(Uri.parse(mediaUrl))
-
-        player.prepare(videoSource)
+        player.prepare(hlsMediaSourceFactory.createMediaSource(Uri.parse(mediaUrl)))
     }
 }
