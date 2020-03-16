@@ -2,10 +2,13 @@ package com.hotmart.sparkle.pocplayer.remote
 
 import android.content.Context
 import android.util.Log
+import com.hotmart.sparkle.pocplayer.Timer
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 object VideoRequest {
     fun perform(context: Context, url: String, token: String, listener: (String) -> Unit) {
         val request = Request.Builder().url("$url?redirect=false")
@@ -19,6 +22,8 @@ object VideoRequest {
 
             override fun onResponse(call: Call, response: Response) {
                 try {
+
+                    Timer.mark("reponse sucess")
                     val obj = JSONObject(response.body?.string().toString())
 
                     val headers = response.headers.values("set-cookie")

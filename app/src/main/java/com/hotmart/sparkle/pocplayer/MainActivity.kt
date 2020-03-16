@@ -20,7 +20,7 @@ import kotlin.time.MonoClock
 @ExperimentalTime
 class MainActivity : AppCompatActivity() {
     private lateinit var player: SimpleExoPlayer
-    private lateinit var time: ClockMark
+    private lateinit var timer: Timer
     private lateinit var dataSourceFactory: OkHttpDataSourceFactory
 
     private lateinit var hlsMediaSourceFactory: HlsMediaSource.Factory
@@ -33,8 +33,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        time = MonoClock.markNow()
-        Log.e("ExoPlayer", "start configuration")
+        Timer.mark("start configuration")
         dataSourceFactory = OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(this), "poc")
         hlsMediaSourceFactory = HlsMediaSource.Factory(dataSourceFactory)
             .setAllowChunklessPreparation(true)
@@ -46,11 +45,11 @@ class MainActivity : AppCompatActivity() {
         val url = "https://api.sparkleapp.com.br/rest/v2/news/207274/download"
 //        val url = "https://api.sparkleapp.com.br/rest/v2/news/243410/download"
         val token =
-            "H4sIAAAAAAAAAIVTy46rOBT8ohnx7CRLEgiBxnY7GPPYRDw6AQNpEiBgf%2F11ruZKsxhpFkeyzeFUuar8zf26cMsGNX4YCU%2BFjTd697NZHrwPrx0SevB3f39zXy01yhPNrIs4ejeLKtm%2Fyvu5wye4pIn%2FLFxalydrTrXdFPQ%2BRwJzFDsajD0exFikmjNB%2B6bBUDERcZaAYAXZ%2Bx7ZWEsJWNDhDQxZoe87jw2Fd%2Fe7NMZNcPD1su%2BULPQruf4pdDxVCezKRhJkjgIJ4Ii0BlKhWro7XrnRLdL3ddlPY0bGFYpyhqydAXPWgHk6EhKb%2FS4uawVs%2Bv%2B76H9mU1G6R55ra5cm%2B0XOUqGw5IxIBba1yNrgu1%2BXWjf%2B1zekHJU8yV5I3UeJ4odIjGvGuhqymwBSF8AsQ%2BqyZDGeUgZrwBUFapEOhKMBdjMyUm4AkXvb4ZBgqaPUU1gzJDf5L5BYWCCSStxWhfb4mx%2BygQGZtULiyDl4AyM%2FyaPjHXc%2BjmK40phCKPBasFbObHWqVfysmRDEqZmS1JDYEyKe9EdRgEvbIPaE9Et6WXVQgBUyz0BuJHUdN%2B%2BS%2FMw%2Fa8Slpz013mGS55IHVqUPKgiXJk2okktN8%2BQ8ZAloUDc2kbrfR%2B0EznRHI4WGXiP7pAflya8z2fve%2F6uHhFGFKLXeGfknnz73OkViDkoeynz0Uqv43MgciSD2W6ml5O3x7KDWWZ%2FKM8mdZAzZqZG50q93Bns45jGdq%2BNuyN6PgKV6xloh%2FVsD0rVAeBN0wSK9MZHd1YHUBtitmvZAy3q%2FTrl8MBmJvDItjnrgN8YL2INF56R8ne2ndnfEUzuh2b%2FSEq%2FIn8VpW22T0CxuevqMwtyxLs%2FYbA9do3%2FmX8iHzpETFBluqJQUtFfnvkNh0Z%2F4OTkcnk7zWNrK28zK40Gut%2FYzKlweJgLcVH5xHunOPW8LI1a3PXKtrGpfWG2Ln3FpTz%2B2rus4uhejOlw%2Bjq%2BXuYr8umys0P7%2BDsjXOmKH6TtqfDQfm49oy%2B3XKR7wUeHGFluQPqYBPrMtKff5X4f6qG%2Fm0%2F1rgG2WfPomJjgsjsluxY%2F84l3ohvETj1hcfJ5XyGNq%2FqjFfVLLvfq84Iu1Gz9%2FbGa%2FhipN8TxZ9lUV46LIsPaeWXxfN%2FH2FSy%2FAFrzb%2BWsBAAA"
+            "H4sIAAAAAAAAAIVTXZOqOBD9RbMVvvT6iIIarklEEiC8WAoOEECZAYXk12%2Bc2lu1D1u1D13V3en06fQ5ucmguu7ymtRBxBQ0cA0HeD85%2BQYuYNOn8SZY%2FXWTgZGbsUxNp7om7F2sinT9yu%2BnNtzjiafB93UXV%2FnefXJzNR66QBLFTJIwgJNTe6BcIlWOeIcsHBkVT%2BLuQBFAtDS4Ki3s4Sb7Acbiaq1bKPorvActT8L6sAmsvGtBFgWF9h9XKxyLFLd5rQcUPsAUSUIbmxjYyHcrWexYyax1lXfjkNFhxip%2FYtE8kfDng4AWUf50ED%2BmY99B3vj%2Fb7H%2B9I5VvtvKizm3PF1PupeBlTsjwQzkuZO2ZXgPqtxsh%2F86I2ALLmn2IsaapSCIiBrmTLQVFqVCEXCQcO0DDacsCUcucIUkANhkFlK%2BiURpZzRfIqpjz5eYhg6hpakxnpiW%2Bi7SWKEilGvcxsDe8DMf8XTOy2fkQe2zJWZBemHbe9gGIUvwHCcxxiqcr6LRPRsrNgt5Mh2MEu5wym2NPRIKJ7IBAO3i5pBAxSkasVe0WKEZC2iTHdN7HZZvQ5Sbf3wiNaddbL%2FFpOe2NQ8Wof6E6qnmaQwueqeX9NRnKapJO9TMWK9ZM6JTvIoZiCP4rtMc5PugynTtO%2F5XDY1YQeLYfWvkH30GErZAY%2FbgEml9dHr3wreRxy2twVnrUWsQKlQDG4lTdaBVrXcoOV0LpFyFo%2Fe8eLgk8bPYrvrs%2FQkEtzLRKM3ffKBtgxR863jS3DjEa3UPqLltDN4hM%2BuCikv9YS74xjf5fXazRy08a9zc5Gy%2FAmFGBArEv36%2FpPEbP4bv5bm1rNtXP7wiUqh90Cz69lcJ%2B%2B8qhZ9MdKuhOw5Gn03ZOZSbvhZukeXFcagJS8%2FLD9wttw9%2FBqd1VD2r%2Fi7PH3GTRttj%2B%2FRi8GVfy4V3vzvwszEx6%2FaJ74DxMJjbRrJf3fmrr9hkqRNPFzZsX88x6tfuQJPvX%2FXlaV%2FTvrejyr1NgDsPjmUe3aa71AlXbpbW9tEnvjGA88NqN%2FRUP7zN9yL17G4fHa%2Fpi%2FFLURtg%2FfTN48P%2B9JD1nZdZWBFnczwPjpfcb2RVc2V%2BOCvfsKbjuN86gQ2nONkPsx9cvP5Yh%2BfjIieh14Jy2aTu3w6Y9rGsBAAA\",\"refresh_token\":\"H4sIAAAAAAAAAIVT2Y6rOBD9ooyMgUvyGJYQ09iEYBbzEhHTHdYktyEs%2FvpxWnOleRhpHkqqssvnuKpOfa5edXV5HdReFAukkBoN6H7WuYV%2BofaZJZa3%2B%2Btz9RQOkzWDenVN43eyKDNz4vdzFx7JzDLv%2B%2BomFT%2FuXwzuRr%2F31kDEMEhjQNJz51O2YnEbiYtVEikVS5PepxhgelOYuKnEJm3%2BQ0yaq2p2qHle0d3rWBrWvuWpvO9AHnml9KvSbd%2F8HaFoCew9JCuAmHaS41xjgcbARoBFQGNNq%2BHemZnAMxbxG%2BdxVcOxzEjHa1lc4wBC8RrQVgsUonB3t5ZufItVs%2BL9OOR0WIjgL9K0L9w4i98gNRDO7Dc%2FJmNHx%2Fb4%2F31Q%2F2AngruHtYBLxzJzllgKEfsFN7GC7f0szQjvXsVhN%2FzXXQAOoMjyKVDMOANeFIhhyZuuIs1N4AjouNlrPg3nPA1H1pAKrwAQGKtYOBA3Ny2n3MBUxrazEhrqAb1ByfEi9CbfYskVioAyydsqxB5%2B%2FhfY8szmC7aR9GODxF5WxId72HlhnJIlSRNCRLhcm1ZitmoCy%2FUMdYJTpjPKNMk9BhTNgQUAdpPWT5FgFI%2FELjsi8EIapAVuLPs6GG%2FDlME%2FfrBKPfSJ9hai1In8bwsl3ozruWZZAgrZ0yI7P%2FMM10E31LFimnE74nOyS2KQROidJ2fAj16Vy9x3%2FK8cGsVlkCT7ty7%2B0ba3og5Izicoorc%2BzI5Apsv6dD%2FFsj4k9XtosQU0qbvZp47G6H4httfkjVn9LE5PhiJNXuVh98zfC9QwNW9aIee3%2BLRr3%2FqUOzDL2eiB3VW%2B7A22W4X1GOa9V7FVLlsclgpiUMk9RWs%2BaCH4h%2F95dNDFSR%2FPU51NANnFFH%2BfuDvY5NJYxXO%2F%2Byx3m%2BOXeFXulBz4yRVb1ny8ErApnuA3d0u1LWr%2F3C6%2FZ802Zu2BzGx7c8bNRBgPpnIDDfiNx2w6lIeAf7%2F4V%2BiZ2uO237ZU46gyQ6iaw51pJ4c%2BMu%2F6%2BqVX%2BuKo2rxMwLVCP9lZ9eFk%2FuqU1iSX0AFQC7EV%2BetlZ9xxATh7frTsBTXjdBTr8hyqVxuOx5Sgj8x4%2BnZltNb0dWFwKcaz%2Fn22FtO%2FlOQynqzevWxsdLxFcub1BPsEfe2TYbvBm%2FEu3MN0f2ipH23dLbgSw9jdl49kqLpHSPN%2BMQqYjvDc5vu%2FAVp7po7oBAAA"
 
-        Log.e("ExoPlayer", "request start: ${time.elapsedNow()}")
+        Timer.mark("request start")
         VideoRequest.perform(this, url, token) { parsedUrl ->
-            Log.e("ExoPlayer", "response end: ${time.elapsedNow()}")
+            Timer.mark("response end")
             runOnUiThread {
                 playMedia(parsedUrl)
             }
@@ -74,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                 playerView.player = this
                 addListener(object : Player.EventListener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        Log.e("ExoPlayer", "playing changed time: ${time.elapsedNow()}")
+                        Timer.mark("playing changed time")
                     }
                 })
             }
