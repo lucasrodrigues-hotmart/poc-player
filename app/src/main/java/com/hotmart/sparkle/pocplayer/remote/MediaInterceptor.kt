@@ -10,7 +10,9 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class MediaInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        Timer.mark("add interceptor")
+        if (chain.request().url.toString().contains("master.m3u8")) {
+            Timer.mark("add interceptor")
+        }
         return chain.proceed(addHlsHeader(chain.request()))
     }
 

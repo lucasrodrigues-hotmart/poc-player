@@ -14,7 +14,6 @@ object Timer {
             monoClock = MonoClock.markNow()
         }
 
-
         Log.e("Timer", "$message: ${monoClock.elapsedNow()}")
     }
 }

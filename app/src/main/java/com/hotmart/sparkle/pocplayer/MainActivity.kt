@@ -2,7 +2,6 @@ package com.hotmart.sparkle.pocplayer
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.Player
@@ -13,9 +12,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.hotmart.sparkle.pocplayer.remote.BaseOkHttpClient
 import com.hotmart.sparkle.pocplayer.remote.VideoRequest
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.time.ClockMark
 import kotlin.time.ExperimentalTime
-import kotlin.time.MonoClock
 
 @ExperimentalTime
 class MainActivity : AppCompatActivity() {

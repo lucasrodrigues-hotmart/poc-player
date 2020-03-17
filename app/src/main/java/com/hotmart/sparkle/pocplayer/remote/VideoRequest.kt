@@ -2,6 +2,7 @@ package com.hotmart.sparkle.pocplayer.remote
 
 import android.content.Context
 import android.util.Log
+import com.hotmart.sparkle.pocplayer.CustomEventListener
 import com.hotmart.sparkle.pocplayer.Timer
 import okhttp3.*
 import org.json.JSONObject
@@ -16,26 +17,25 @@ object VideoRequest {
             .build()
 
         Timer.mark("start call")
-        OkHttpClient.Builder().build().newCall(request).enqueue(object : Callback {
+        OkHttpClient.Builder().eventListener(CustomEventListener()).build().newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 try {
-
-                    Timer.mark("reponse sucess")
+                    Timer.mark("response success")
                     val obj = JSONObject(response.body?.string().toString())
-                    Timer.mark("parse body sucess")
+                    Timer.mark("parse body success")
 
                     val headers = response.headers.values("set-cookie")
-                    Timer.mark("parse headers sucess")
+                    Timer.mark("parse headers success")
                     val cookies = if (headers.size >= 3) {
                         headers[0] + ";" + headers[1] + ";" + headers[2]
                     } else {
                         ""
                     }
-                    Timer.mark("cookies sucess")
+                    Timer.mark("cookies success")
 
                     val prefs = context.getSharedPreferences(
                         "preferences_media",
