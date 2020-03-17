@@ -15,6 +15,7 @@ object VideoRequest {
             .addHeader("Authorization", "Bearer $token")
             .build()
 
+        Timer.mark("start call")
         OkHttpClient.Builder().build().newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
@@ -25,13 +26,16 @@ object VideoRequest {
 
                     Timer.mark("reponse sucess")
                     val obj = JSONObject(response.body?.string().toString())
+                    Timer.mark("parse body sucess")
 
                     val headers = response.headers.values("set-cookie")
+                    Timer.mark("parse headers sucess")
                     val cookies = if (headers.size >= 3) {
                         headers[0] + ";" + headers[1] + ";" + headers[2]
                     } else {
                         ""
                     }
+                    Timer.mark("cookies sucess")
 
                     val prefs = context.getSharedPreferences(
                         "preferences_media",
