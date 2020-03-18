@@ -18,25 +18,41 @@ import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
 object VideoRequest {
-    fun retrofit(url: String, token: String){
+    private val eventListener = CustomEventListener(isLogEnabled = false, tag = "OkHttp")
+    private val client = OkHttpClient.Builder().eventListener(eventListener).build()
+
+    fun retrofit(token: String, listener: () -> Unit){
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.sparkleapp.com.br/rest/")
-            .client()
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        val service = retrofit.create(Api::class.java)
+        retrofit.create(Api::class.java).getDownload("Bearer $token", "207274")
+            .enqueue(object: retrofit2.Callback<ResponseVideo> {
+            override fun onFailure(call: retrofit2.Call<ResponseVideo>, t: Throwable) {
 
-        val result = service.getDownload("Bearer $token","207274" ).execute()
+            }
+
+            override fun onResponse(
+                call: retrofit2.Call<ResponseVideo>,
+                response: retrofit2.Response<ResponseVideo>
+            ) {
+                listener.invoke()
+            }
+        })
     }
 
     fun perform(context: Context, url: String, token: String, listener: (String) -> Unit) {
+        eventListener.isLogEnabled = true
+        eventListener.resetTimer()
+
         val request = Request.Builder().url("$url?redirect=false")
             .addHeader("Authorization", "Bearer $token")
             .build()
 
         Timer.mark("start call")
-        OkHttpClient.Builder().eventListener(CustomEventListener()).build().newCall(request).enqueue(object : Callback {
+        client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
             }

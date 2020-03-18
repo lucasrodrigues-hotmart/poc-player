@@ -1,6 +1,7 @@
 package com.hotmart.sparkle.pocplayer.remote
 
 import android.content.Context
+import com.hotmart.sparkle.pocplayer.CustomEventListener
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,12 +23,14 @@ class BaseOkHttpClient(private val okHttpClient: OkHttpClient) {
             const val DEFAULT = 20L
         }
 
+        val eventListener = CustomEventListener(isLogEnabled = true, tag = "ExoPlayer")
+
         fun getOkHttpClient(context: Context): OkHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(MediaInterceptor(context))
             addInterceptor(HttpLoggingInterceptor().apply {
                 this.level = HttpLoggingInterceptor.Level.BASIC
             })
-
+            eventListener(eventListener)
             cache(Cache(context.cacheDir, CACHE_SIZE))
         }.build()
     }
