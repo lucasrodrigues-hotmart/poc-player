@@ -14,28 +14,14 @@ import java.io.File
 
 private const val JOB_ID = 1
 private const val DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel"
-private const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
 
 class PocDownloadService: DownloadService(FOREGROUND_NOTIFICATION_ID_NONE) {
-    private val dlManager: DownloadManager by lazy {
-        return@lazy DownloadManager(
-            this,
-            databaseProvider,
-            downloadCache,
-            DefaultHttpDataSourceFactory("PocPlayer")
-        )
-    }
-    private val databaseProvider: ExoDatabaseProvider by lazy { ExoDatabaseProvider(this) }
-    private val downloadCache: SimpleCache by lazy {
-        val directory = File(filesDir, DOWNLOAD_CONTENT_DIRECTORY)
-        return@lazy SimpleCache(directory, NoOpCacheEvictor(), databaseProvider)
-    }
     private val downloadNotificationHelper: DownloadNotificationHelper by lazy {
         DownloadNotificationHelper(this, DOWNLOAD_NOTIFICATION_CHANNEL_ID)
     }
 
     override fun getDownloadManager(): DownloadManager {
-        return dlManager
+        return DownloadManagerBuilder.getDownloadManager(this)
     }
 
     override fun getForegroundNotification(downloads: MutableList<Download>): Notification {
