@@ -3,13 +3,12 @@ package com.example.download
 import android.content.Context
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
 import com.google.android.exoplayer2.offline.DownloadManager
-import com.google.android.exoplayer2.ui.DownloadNotificationHelper
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import java.io.File
 
-private const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
+private const val DOWNLOAD_CONTENT_DIRECTORY = "pocdownloads"
 
 object DownloadManagerBuilder {
     private var downloadManager: DownloadManager? = null

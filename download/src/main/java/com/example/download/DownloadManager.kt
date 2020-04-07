@@ -23,8 +23,8 @@ object DownloadManager {
 
         val downloadRequest = DownloadRequest(
             mediaCode,
-            DownloadRequest.TYPE_PROGRESSIVE,
-            Uri.parse(contentUri),  /* streamKeys= */
+            DownloadRequest.TYPE_HLS,
+            Uri.parse(contentUri),
             emptyList(),
             null,
             null
