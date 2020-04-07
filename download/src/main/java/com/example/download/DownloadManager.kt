@@ -18,6 +18,9 @@ object DownloadManager {
     }
 
     fun download(context: Context, mediaCode: String, contentUri: String) {
+        Log.e("aaaa", "should start download of $mediaCode")
+        Log.e("aaaa", "Uri: $contentUri")
+
         val downloadRequest = DownloadRequest(
             mediaCode,
             DownloadRequest.TYPE_PROGRESSIVE,
@@ -33,7 +36,6 @@ object DownloadManager {
             downloadRequest,
             false
         )
-
 
         val manager = DownloadManagerBuilder.getDownloadManager(context)
         manager.addListener(object : DownloadManager.Listener {

@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class RestClient {
     private val playlistApi = Retrofit.Builder()
-        .baseUrl("https://api-club.buildstaging.com/content/v5/player/media/")
+        .baseUrl("https://api-club.hotmart.com/content/v5/player/media/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(PlaylistApi::class.java)
