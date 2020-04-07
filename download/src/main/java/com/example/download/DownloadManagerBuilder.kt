@@ -8,7 +8,7 @@ import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import java.io.File
 
-private const val DOWNLOAD_CONTENT_DIRECTORY = "pocdownloads"
+private const val DOWNLOAD_CONTENT_DIRECTORY = "pocdownload"
 
 object DownloadManagerBuilder {
     private var downloadManager: DownloadManager? = null

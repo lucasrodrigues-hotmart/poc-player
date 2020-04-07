@@ -24,7 +24,7 @@ object DownloadManager {
         val downloadRequest = DownloadRequest(
             mediaCode,
             DownloadRequest.TYPE_HLS,
-            Uri.parse(contentUri),
+            Uri.parse("https://s3.amazonaws.com/player.hotmart.dev/N4Rzm4PWZV/720/720.m3u8"),
             emptyList(),
             null,
             null
@@ -47,10 +47,18 @@ object DownloadManager {
                 downloadManager: DownloadManager,
                 download: Download
             ) {
+                Log.e("aaaa", "on download changed")
+
                 listeners.forEach { listener ->
                     listener.invoke(download.percentDownloaded)
                 }
             }
+
+            override fun onIdle(downloadManager: DownloadManager) {
+                Log.e("aaaa", "on idle")
+            }
+
+
         })
     }
 }
