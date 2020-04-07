@@ -2,17 +2,28 @@ package com.hotmart.sparkle.pocplayer
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.download.DownloadManager
+import com.example.download.DownloadManagerBuilder
+import com.example.download.remote.RestClient
+import com.example.download.remote.repository.PlaylistDataRepository
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory
 import com.hotmart.sparkle.pocplayer.remote.BaseOkHttpClient
 import com.hotmart.sparkle.pocplayer.remote.VideoRequest
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.HttpURLConnection
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -58,14 +69,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
         downloadBtn.setOnClickListener {
-            DownloadManager.download(this, "254036", url)
+            download("?", "jnRvEyXZQr")
         }
         playLocalBtn.setOnClickListener {
-
+            configureLocal(url)
         }
 
         DownloadManager.addListener { percent ->
             downloadStatus.text = "Downloaded: $percent%"
+        }
+    }
+
+    private fun download(courseId: String, mediaCode: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val playlist = PlaylistDataRepository(RestClient().getPlaylistApi())
+                    .getPlaylist(mediaCode, "Bearer $token", courseId)
+
+                DownloadManager.download(this@MainActivity, mediaCode, playlist.manifest?.url ?: "")
+            } catch (e: Exception) {
+                if (e is HttpException) {
+                    when (e.code()) {
+                        HttpURLConnection.HTTP_UNAUTHORIZED ->
+                            Log.e("aaaa", "401 error")
+                        HttpURLConnection.HTTP_FORBIDDEN ->
+                            Log.e("aaaa", "403 error")
+                        else ->
+                            Log.e("aaaa", "another error")
+                    }
+                }
+            }
         }
     }
 
@@ -126,6 +159,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun configureMP4(mediaUrl: String) {
         player.prepare(mp4MediaSource.createMediaSource(Uri.parse(mediaUrl)))
+    }
+
+    private fun configureLocal(mediaUrl: String) {
+        val dataSourceFactory = CacheDataSourceFactory(
+            DownloadManagerBuilder.getDownloadCache(this), DefaultDataSourceFactory(this, "PocPlayer")
+        )
+
+        player.prepare(HlsMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(Uri.parse(mediaUrl)))
     }
 
     enum class MediaType {

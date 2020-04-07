@@ -13,20 +13,36 @@ private const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
 
 object DownloadManagerBuilder {
     private var downloadManager: DownloadManager? = null
+    private var downloadCache: SimpleCache? = null
+    private var databaseProvider: ExoDatabaseProvider? = null
 
     fun getDownloadManager(context: Context): DownloadManager {
         if (downloadManager == null) {
-            val databaseProvider = ExoDatabaseProvider(context)
-            val directory = File(context.filesDir, DOWNLOAD_CONTENT_DIRECTORY)
-            val downloadCache = SimpleCache(directory, NoOpCacheEvictor(), databaseProvider)
             downloadManager = DownloadManager(
                 context,
-                databaseProvider,
-                downloadCache,
+                getDatabaseProvider(context),
+                getDownloadCache(context),
                 DefaultHttpDataSourceFactory("PocPlayer")
             )
         }
 
         return downloadManager!!
+    }
+
+    fun getDownloadCache(context: Context): SimpleCache {
+        if (downloadCache == null) {
+            val directory = File(context.filesDir, DOWNLOAD_CONTENT_DIRECTORY)
+            downloadCache = SimpleCache(directory, NoOpCacheEvictor(), getDatabaseProvider(context))
+        }
+
+        return downloadCache!!
+    }
+
+    private fun getDatabaseProvider(context: Context): ExoDatabaseProvider {
+        if (databaseProvider == null) {
+            databaseProvider = ExoDatabaseProvider(context)
+        }
+
+        return databaseProvider!!
     }
 }
