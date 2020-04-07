@@ -1,14 +1,16 @@
 package com.example.download
 
 import android.content.Context
+import com.example.download.remote.BaseOkHttpClient
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.offline.DownloadManager
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
+import okhttp3.CacheControl
 import java.io.File
 
-private const val DOWNLOAD_CONTENT_DIRECTORY = "pocdownload"
+private const val DOWNLOAD_CONTENT_DIRECTORY = "poccache"
 
 object DownloadManagerBuilder {
     private var downloadManager: DownloadManager? = null
@@ -21,8 +23,10 @@ object DownloadManagerBuilder {
                 context,
                 getDatabaseProvider(context),
                 getDownloadCache(context),
-                DefaultHttpDataSourceFactory("PocPlayer")
+                OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(context), "PocPlayer", CacheControl.FORCE_NETWORK)
             )
+
+            downloadManager?.maxParallelDownloads = 5
         }
 
         return downloadManager!!

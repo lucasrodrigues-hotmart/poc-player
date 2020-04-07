@@ -24,7 +24,7 @@ object DownloadManager {
         val downloadRequest = DownloadRequest(
             mediaCode,
             DownloadRequest.TYPE_HLS,
-            Uri.parse("https://s3.amazonaws.com/player.hotmart.dev/N4Rzm4PWZV/720/720.m3u8"),
+            Uri.parse(contentUri),
             emptyList(),
             null,
             null
@@ -57,8 +57,6 @@ object DownloadManager {
             override fun onIdle(downloadManager: DownloadManager) {
                 Log.e("aaaa", "on idle")
             }
-
-
         })
     }
 }
