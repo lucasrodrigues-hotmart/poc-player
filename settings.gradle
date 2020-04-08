@@ -3,3 +3,4 @@ rootProject.name='PocPlayer'
 
 include ':download'
 project(':download').projectDir = new File("$rootDir", "download")
+include ':dtgdownload'

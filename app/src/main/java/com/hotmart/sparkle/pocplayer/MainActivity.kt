@@ -8,6 +8,7 @@ import com.example.download.DownloadManager
 import com.example.download.DownloadManagerBuilder
 import com.example.download.remote.RestClient
 import com.example.download.remote.repository.PlaylistDataRepository
+import com.example.dtgdownload.DtgDownloadManager
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -44,11 +45,17 @@ class MainActivity : AppCompatActivity() {
     private var mediaSource: MediaSource = MediaSource.IN
     private var requestType : RequestType = RequestType.WARMED
 
+    private lateinit var dtgDownloader: DtgDownloadManager
+
     private lateinit var url : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        dtgDownloader = DtgDownloadManager(this)
+        dtgDownloader.start { Log.e("aaaa", "started dtg") }
+        dtgDownloader.listener = { percent -> downloadStatus.text = "Downloaded: $percent%" }
 
 //        Timer.mark("start configuration")
         dataSourceFactory = OkHttpDataSourceFactory(BaseOkHttpClient.getOkHttpClient(this), "poc")
@@ -91,9 +98,10 @@ class MainActivity : AppCompatActivity() {
                 val playlist = PlaylistDataRepository(RestClient().getPlaylistApi())
                     .getPlaylist(mediaCode, "Bearer $token", "desafio30diasbr")
 
-                url = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-//                url = playlist.videos.first().url ?: ""
-                DownloadManager.download(this@MainActivity, mediaCode, url)
+//                url = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+                url = playlist.videos.first().url ?: ""
+//                DownloadManager.download(this@MainActivity, mediaCode, url)
+                dtgDownloader.download(mediaCode, url)
             } catch (e: Exception) {
                 if (e is HttpException) {
                     when (e.code()) {
